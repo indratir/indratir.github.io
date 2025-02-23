@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>indratir.github.io</title>
+    <style>
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, "Helvetica Neue", Arial, sans-serif;
+      }
+    </style>
+    <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
+  </head>
+  <body>
+    <h1>Screen Recorder</h1>
+    <select id="output-type">
+      <option value="gif">GIF</option>
+      <option value="webm" selected>WebM</option>
+    </select>
+    <button id="start">Start Recording</button>
+    <button id="stop" disabled>Stop Recording</button>
+    <p>
+      <a id="download" style="display: none">Download Recording</a>
+    </p>
+    <script>
+      let recorder;
+      let stream;
+      let outputType;
+
+      document.getElementById("start").addEventListener("click", async () => {
+        stream = await navigator.mediaDevices.getDisplayMedia({
+          video: true,
+          audio: true,
+        });
+        outputType = document.getElementById("output-type").value;
+
+        switch (outputType) {
+          case "gif":
+            const videoTrack = stream.getVideoTracks()[0];
+            const { width, height } = videoTrack.getSettings();
+            const fixedWidth = 300;
+            const newHeight = height * (fixedWidth / width);
+
+            recorder = new RecordRTC(stream, {
+              type: "gif",
+              frameRate: 10,
+              canvas: {
+                width: fixedWidth,
+                height: newHeight,
+              },
+            });
+            break;
+          case "webm":
+            recorder = new RecordRTC(stream, {
+              type: "video",
+              mimeType: "video/webm",
+            });
+            break;
+        }
+
+        recorder.startRecording();
+        document.getElementById("start").disabled = true;
+        document.getElementById("stop").disabled = false;
+      });
+
+      document.getElementById("stop").addEventListener("click", () => {
+        recorder.stopRecording(() => {
+          const blob = recorder.getBlob();
+          const url = URL.createObjectURL(blob);
+
+          const downloadLink = document.getElementById("download");
+          downloadLink.href = url;
+          downloadLink.download = `screen-recording.${outputType}`;
+          downloadLink.style.display = "block";
+          downloadLink.textContent = "Download Recording";
+
+          // Stop all tracks to remove the screen share indicator
+          stream.getTracks().forEach((track) => track.stop());
+        });
+
+        document.getElementById("start").disabled = false;
+        document.getElementById("stop").disabled = true;
+      });
+    </script>
+  </body>
+</html>

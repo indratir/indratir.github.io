@@ -69,9 +69,12 @@
           const blob = recorder.getBlob();
           const url = URL.createObjectURL(blob);
 
+          // Generate timestamp in unix timestamp format
+          const timestamp = parseInt(Math.floor(new Date().getTime()) / 1000);
+
           const downloadLink = document.getElementById("download");
           downloadLink.href = url;
-          downloadLink.download = `screen-recording.${outputType}`;
+          downloadLink.download = `screen-recording_${timestamp}.${outputType}`;
           downloadLink.style.display = "block";
           downloadLink.textContent = "Download Recording";
 

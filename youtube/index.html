@@ -1,0 +1,42 @@
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>No Ads YouTube URL</title>
+    </head>
+    <body>
+        <h1>Screen Recorder</h1>
+        <textarea cols="50" rows="5" id="youtubeUrl" placeholder="Paste YouTube URL here"></textarea>
+        <p>
+            <button onclick="convertUrl()">Convert</button>
+        </p>
+        <div id="output"></div>
+        <script>
+            function convertUrl() {
+                const input = document.getElementById("youtubeUrl").value.trim();
+                const videoId = extractVideoId(input);
+
+                if (videoId) {
+                    const embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}`;
+                    document.getElementById("output").innerHTML = `<p><a href="${embedUrl}" target="_blank">${embedUrl}</a></p>`;
+                } else {
+                    document.getElementById("output").innerHTML = `<p style="color: red;">Invalid URL</p>`;
+                }
+            }
+
+            function extractVideoId(url) {
+                try {
+                    const parsedUrl = new URL(url);
+                    if (parsedUrl.hostname.includes("youtu.be")) {
+                        return parsedUrl.pathname.split("/")[1];
+                    } else if (parsedUrl.hostname.includes("youtube.com")) {
+                        return parsedUrl.searchParams.get("v");
+                    }
+                } catch (e) {
+                    return null;
+                }
+                return null;
+            }
+        </script>
+    </body>
+</html>

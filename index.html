@@ -1,40 +1,336 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>indratir.github.io</title>
     <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
       body {
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-          Roboto, "Helvetica Neue", Arial, sans-serif;
+        font-family:
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          "Helvetica Neue",
+          Arial,
+          sans-serif;
+        min-height: 100dvh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #0f0f11;
+        color: #e8e8ea;
+      }
+
+      .card {
+        background: #1a1a1e;
+        border: 1px solid #2e2e34;
+        border-radius: 16px;
+        padding: 2rem;
+        width: min(420px, 92vw);
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .card-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .card-header svg {
+        flex-shrink: 0;
+        color: #a78bfa;
+      }
+
+      h1 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+
+      .controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+      }
+
+      label {
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: #9090a0;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+
+      select {
+        appearance: none;
+        background: #0f0f11
+          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236060a0' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")
+          no-repeat right 0.75rem center;
+        border: 1px solid #2e2e34;
+        border-radius: 8px;
+        color: #e8e8ea;
+        font-size: 0.9rem;
+        padding: 0.55rem 2rem 0.55rem 0.75rem;
+        cursor: pointer;
+        transition: border-color 0.15s;
+        width: 100%;
+      }
+
+      select:hover,
+      select:focus {
+        border-color: #a78bfa;
+        outline: none;
+      }
+
+      .actions {
+        display: flex;
+        gap: 0.75rem;
+      }
+
+      button {
+        flex: 1;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        padding: 0.65rem 1rem;
+        cursor: pointer;
+        transition:
+          opacity 0.15s,
+          transform 0.1s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+
+      button:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+      }
+      button:not(:disabled):active {
+        transform: scale(0.97);
+      }
+
+      #start {
+        background: #a78bfa;
+        color: #0f0f11;
+      }
+
+      #start:not(:disabled):hover {
+        background: #bba7fc;
+      }
+
+      #stop {
+        background: #2e2e34;
+        color: #e8e8ea;
+      }
+
+      #stop:not(:disabled):hover {
+        background: #3e3e48;
+      }
+      #stop:not(:disabled) {
+        background: #f87171;
+        color: #0f0f11;
+      }
+      #stop:not(:disabled):hover {
+        background: #fb9393;
+      }
+
+      .status {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.82rem;
+        color: #6060a0;
+        min-height: 1.25rem;
+      }
+
+      .status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #2e2e34;
+        flex-shrink: 0;
+      }
+
+      .status-dot.recording {
+        background: #f87171;
+        animation: pulse 1.2s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.3;
+        }
+      }
+
+      #download {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        background: #1e3a2f;
+        border: 1px solid #2a5040;
+        color: #4ade80;
+        border-radius: 8px;
+        padding: 0.65rem 1rem;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: background 0.15s;
+      }
+
+      #download:hover {
+        background: #243d33;
+      }
+
+      footer {
+        font-size: 0.75rem;
+        color: #40405a;
+        text-align: center;
+      }
+
+      footer a {
+        color: #6060a0;
+        text-decoration: none;
+      }
+
+      footer a:hover {
+        color: #a78bfa;
       }
     </style>
     <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
   </head>
   <body>
-    <h1>Screen Recorder</h1>
-    <select id="output-type">
-      <option value="mp4" selected>MP4</option>
-      <option value="webm">WebM</option>
-      <option value="gif">GIF</option>
-    </select>
-    <button id="start">Start Recording</button>
-    <button id="stop" disabled>Stop Recording</button>
-    <p>
-      <a id="download" style="display: none">Download Recording</a>
-    </p>
+    <div class="card">
+      <div class="card-header">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <rect x="2" y="3" width="20" height="14" rx="2" />
+          <polyline points="8 21 12 17 16 21" />
+        </svg>
+        <h1>Screen Recorder</h1>
+      </div>
+
+      <div class="controls">
+        <label>
+          Format
+          <select id="output-type">
+            <option value="mp4" selected>MP4</option>
+            <option value="webm">WebM</option>
+            <option value="gif">GIF</option>
+          </select>
+        </label>
+        <label>
+          Frame Rate
+          <select id="fps">
+            <option value="15">15 fps</option>
+            <option value="30">30 fps</option>
+            <option value="60" selected>60 fps</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="actions">
+        <button id="start">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <circle cx="12" cy="12" r="10" />
+          </svg>
+          Start
+        </button>
+        <button id="stop" disabled>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <rect x="4" y="4" width="16" height="16" rx="2" />
+          </svg>
+          Stop
+        </button>
+      </div>
+
+      <div class="status">
+        <span class="status-dot" id="status-dot"></span>
+        <span id="status-text">Ready to record</span>
+      </div>
+
+      <a id="download">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="15"
+          height="15"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" y1="15" x2="12" y2="3" />
+        </svg>
+        Download Recording
+      </a>
+
+      <footer>
+        &copy; 2026 &mdash; crafted with ❤️ by
+        <a href="https://github.com/indratir" target="_blank" rel="noopener"
+          >@indratir</a
+        >
+      </footer>
+    </div>
     <script>
       let recorder;
       let stream;
       let outputType;
 
       document.getElementById("start").addEventListener("click", async () => {
+        const fps = parseInt(document.getElementById("fps").value, 10);
+        outputType = document.getElementById("output-type").value;
+
         stream = await navigator.mediaDevices.getDisplayMedia({
-          video: true,
+          video: { frameRate: { ideal: fps, max: fps } },
           audio: true,
         });
-        outputType = document.getElementById("output-type").value;
 
         switch (outputType) {
           case "gif":
@@ -45,7 +341,7 @@
 
             recorder = new RecordRTC(stream, {
               type: "gif",
-              frameRate: 10,
+              frameRate: fps,
               canvas: {
                 width: fixedWidth,
                 height: newHeight,
@@ -56,12 +352,14 @@
             recorder = new RecordRTC(stream, {
               type: "video",
               mimeType: "video/webm",
+              frameRate: fps,
             });
             break;
           case "mp4":
             recorder = new RecordRTC(stream, {
               type: "video",
               mimeType: "video/mp4",
+              frameRate: fps,
             });
             break;
         }
@@ -69,6 +367,9 @@
         recorder.startRecording();
         document.getElementById("start").disabled = true;
         document.getElementById("stop").disabled = false;
+        document.getElementById("status-dot").classList.add("recording");
+        document.getElementById("status-text").textContent = "Recording…";
+        document.getElementById("download").style.display = "none";
       });
 
       document.getElementById("stop").addEventListener("click", () => {
@@ -82,15 +383,19 @@
           const downloadLink = document.getElementById("download");
           downloadLink.href = url;
           downloadLink.download = `screen-recording_${timestamp}.${outputType}`;
-          downloadLink.style.display = "block";
-          downloadLink.textContent = "Download Recording";
+          downloadLink.style.display = "flex";
+          downloadLink.lastChild.textContent = ` Download ${outputType.toUpperCase()}`;
 
           // Stop all tracks to remove the screen share indicator
           stream.getTracks().forEach((track) => track.stop());
+          document.getElementById("status-text").textContent =
+            "Ready to record";
         });
 
         document.getElementById("start").disabled = false;
         document.getElementById("stop").disabled = true;
+        document.getElementById("status-dot").classList.remove("recording");
+        document.getElementById("status-text").textContent = "Processing…";
       });
     </script>
   </body>

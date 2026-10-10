@@ -29,6 +29,7 @@
         justify-content: center;
         background: #0f0f11;
         color: #e8e8ea;
+        padding: 2rem 1rem;
       }
 
       .card {
@@ -36,7 +37,7 @@
         border: 1px solid #2e2e34;
         border-radius: 16px;
         padding: 2rem;
-        width: min(420px, 92vw);
+        width: min(520px, 92vw);
         display: flex;
         flex-direction: column;
         gap: 1.5rem;
@@ -59,6 +60,20 @@
         letter-spacing: -0.01em;
       }
 
+      h2 {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #a78bfa;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .section-divider {
+        border: 0;
+        border-top: 1px solid #2e2e34;
+        margin: 0.25rem 0;
+      }
+
       .controls {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -76,23 +91,31 @@
         letter-spacing: 0.06em;
       }
 
-      select {
+      select,
+      input[type="number"] {
         appearance: none;
-        background: #0f0f11
-          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236060a0' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")
-          no-repeat right 0.75rem center;
+        background: #0f0f11;
         border: 1px solid #2e2e34;
         border-radius: 8px;
         color: #e8e8ea;
         font-size: 0.9rem;
-        padding: 0.55rem 2rem 0.55rem 0.75rem;
-        cursor: pointer;
+        padding: 0.55rem 0.75rem;
         transition: border-color 0.15s;
         width: 100%;
       }
 
+      select {
+        background: #0f0f11
+          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236060a0' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")
+          no-repeat right 0.75rem center;
+        padding-right: 2rem;
+        cursor: pointer;
+      }
+
       select:hover,
-      select:focus {
+      select:focus,
+      input[type="number"]:hover,
+      input[type="number"]:focus {
         border-color: #a78bfa;
         outline: none;
       }
@@ -112,7 +135,8 @@
         cursor: pointer;
         transition:
           opacity 0.15s,
-          transform 0.1s;
+          transform 0.1s,
+          background 0.15s;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -127,29 +151,85 @@
         transform: scale(0.97);
       }
 
-      #start {
+      #start,
+      #preview-start {
         background: #a78bfa;
         color: #0f0f11;
       }
 
-      #start:not(:disabled):hover {
+      #start:not(:disabled):hover,
+      #preview-start:not(:disabled):hover {
         background: #bba7fc;
       }
 
-      #stop {
+      #stop,
+      #preview-stop {
         background: #2e2e34;
         color: #e8e8ea;
       }
 
-      #stop:not(:disabled):hover {
-        background: #3e3e48;
-      }
-      #stop:not(:disabled) {
+      #stop:not(:disabled),
+      #preview-stop:not(:disabled) {
         background: #f87171;
         color: #0f0f11;
       }
-      #stop:not(:disabled):hover {
+      #stop:not(:disabled):hover,
+      #preview-stop:not(:disabled):hover {
         background: #fb9393;
+      }
+
+      /* Live Preview Container & Responsive Layout */
+      .preview-box {
+        position: relative;
+        width: 100%;
+        max-width: 100%;
+        height: 220px;
+        background: #0f0f11;
+        border: 1px dashed #2e2e34;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        margin: 0 auto;
+        transition:
+          height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+          aspect-ratio 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .preview-placeholder {
+        color: #6060a0;
+        font-size: 0.85rem;
+        text-align: center;
+      }
+
+      #preview-video {
+        object-fit: contain;
+        display: none;
+        transition: transform 0.25s ease-out;
+      }
+
+      .rotation-controls {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .degree-buttons {
+        display: flex;
+        gap: 0.375rem;
+      }
+
+      .btn-quick-deg {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.75rem;
+        background: #2e2e34;
+        color: #e8e8ea;
+        border-radius: 6px;
+      }
+
+      .btn-quick-deg:hover:not(:disabled) {
+        background: #3e3e48;
       }
 
       .status {
@@ -238,9 +318,62 @@
           <rect x="2" y="3" width="20" height="14" rx="2" />
           <polyline points="8 21 12 17 16 21" />
         </svg>
-        <h1>Screen Recorder</h1>
+        <h1>Screen Recorder & Live Preview</h1>
       </div>
 
+      <!-- Live Preview Section -->
+      <h2>Live Preview & Rotate</h2>
+      <div class="preview-box" id="preview-box">
+        <span class="preview-placeholder" id="preview-placeholder">
+          No live preview active
+        </span>
+        <video id="preview-video" autoplay playsinline muted></video>
+      </div>
+
+      <div class="rotation-controls">
+        <label style="flex: 1">
+          Rotate (Degree)
+          <input
+            type="number"
+            id="rotate-degree"
+            value="0"
+            placeholder="0"
+            disabled
+          />
+        </label>
+        <div class="degree-buttons" style="margin-top: 1rem">
+          <button class="btn-quick-deg" data-deg="0" disabled>0°</button>
+          <button class="btn-quick-deg" data-deg="90" disabled>90°</button>
+          <button class="btn-quick-deg" data-deg="180" disabled>180°</button>
+          <button class="btn-quick-deg" data-deg="270" disabled>270°</button>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="preview-start">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+          Start Preview
+        </button>
+        <button id="preview-stop" disabled>Stop Preview</button>
+      </div>
+
+      <hr class="section-divider" />
+
+      <!-- Recorder Section -->
+      <h2>Recorder Settings</h2>
       <div class="controls">
         <label>
           Format
@@ -271,7 +404,7 @@
           >
             <circle cx="12" cy="12" r="10" />
           </svg>
-          Start
+          Start Recording
         </button>
         <button id="stop" disabled>
           <svg
@@ -318,67 +451,187 @@
         >
       </footer>
     </div>
+
     <script>
       let recorder;
-      let stream;
+      let recordStream;
+      let previewStream;
       let outputType;
 
-      document.getElementById("start").addEventListener("click", async () => {
-        const fps = parseInt(document.getElementById("fps").value, 10);
-        outputType = document.getElementById("output-type").value;
+      const previewBox = document.getElementById("preview-box");
+      const previewVideo = document.getElementById("preview-video");
+      const previewPlaceholder = document.getElementById("preview-placeholder");
+      const previewStartBtn = document.getElementById("preview-start");
+      const previewStopBtn = document.getElementById("preview-stop");
+      const rotateInput = document.getElementById("rotate-degree");
+      const quickDegBtns = document.querySelectorAll(".btn-quick-deg");
 
-        stream = await navigator.mediaDevices.getDisplayMedia({
-          video: { frameRate: { ideal: fps, max: fps } },
-          audio: true,
-        });
+      // Adaptive Rotation & Layout Function
+      function updateRotation(degree) {
+        const deg = parseInt(degree, 10) || 0;
+        const normalizedDeg = Math.abs(deg % 360);
+        const isQuarterTurn = normalizedDeg % 180 === 90;
 
-        switch (outputType) {
-          case "gif":
-            const videoTrack = stream.getVideoTracks()[0];
-            const { width, height } = videoTrack.getSettings();
-            const fixedWidth = 300;
-            const newHeight = height * (fixedWidth / width);
+        // Ambil rasio asli video (default 16/9)
+        const nativeWidth = previewVideo.videoWidth || 16;
+        const nativeHeight = previewVideo.videoHeight || 9;
+        const nativeRatio = nativeWidth / nativeHeight;
 
-            recorder = new RecordRTC(stream, {
-              type: "gif",
-              frameRate: fps,
-              canvas: {
-                width: fixedWidth,
-                height: newHeight,
-              },
-            });
-            break;
-          case "webm":
-            recorder = new RecordRTC(stream, {
-              type: "video",
-              mimeType: "video/webm",
-              frameRate: fps,
-            });
-            break;
-          case "mp4":
-            recorder = new RecordRTC(stream, {
-              type: "video",
-              mimeType: "video/mp4",
-              frameRate: fps,
-            });
-            break;
+        if (isQuarterTurn) {
+          // Orientasi Portrait (90 deg / 270 deg)
+          const portraitRatio = 1 / nativeRatio;
+          previewBox.style.aspectRatio = `${portraitRatio}`;
+          previewBox.style.height = "380px";
+
+          // Tukar dimensi layout elemen video agar pas dalam box portrait saat diputar
+          const boxHeight = 380;
+          const boxWidth = boxHeight * portraitRatio;
+
+          previewVideo.style.width = `${boxHeight}px`;
+          previewVideo.style.height = `${boxWidth}px`;
+        } else {
+          // Orientasi Landscape (0 deg / 180 deg)
+          previewBox.style.aspectRatio = `${nativeRatio}`;
+          previewBox.style.height = "auto";
+
+          previewVideo.style.width = "100%";
+          previewVideo.style.height = "100%";
         }
 
-        recorder.startRecording();
-        document.getElementById("start").disabled = true;
-        document.getElementById("stop").disabled = false;
-        document.getElementById("status-dot").classList.add("recording");
-        document.getElementById("status-text").textContent = "Recording…";
-        document.getElementById("download").style.display = "none";
+        previewVideo.style.transform = `rotate(${deg}deg)`;
+      }
+
+      rotateInput.addEventListener("input", (e) => {
+        updateRotation(e.target.value);
+      });
+
+      quickDegBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const deg = btn.getAttribute("data-deg");
+          rotateInput.value = deg;
+          updateRotation(deg);
+        });
+      });
+
+      // Update layout otomatis saat metadata video selesai dimuat
+      previewVideo.addEventListener("loadedmetadata", () => {
+        updateRotation(rotateInput.value);
+      });
+
+      // Start Live Preview
+      previewStartBtn.addEventListener("click", async () => {
+        try {
+          previewStream = await navigator.mediaDevices.getDisplayMedia({
+            video: true,
+            audio: false,
+          });
+
+          previewVideo.srcObject = previewStream;
+          previewVideo.style.display = "block";
+          previewPlaceholder.style.display = "none";
+
+          previewStartBtn.disabled = true;
+          previewStopBtn.disabled = false;
+          rotateInput.disabled = false;
+          quickDegBtns.forEach((b) => (b.disabled = false));
+
+          previewStream.getVideoTracks()[0].onended = () => {
+            stopPreviewStream();
+          };
+        } catch (err) {
+          console.warn("Live Preview ditutup atau dibatalkan:", err);
+        }
+      });
+
+      // Stop Live Preview & Reset Box
+      function stopPreviewStream() {
+        if (previewStream) {
+          previewStream.getTracks().forEach((track) => track.stop());
+          previewStream = null;
+        }
+        previewVideo.srcObject = null;
+        previewVideo.style.display = "none";
+        previewPlaceholder.style.display = "block";
+
+        // Reset Layout Box ke Default
+        previewBox.style.aspectRatio = "auto";
+        previewBox.style.height = "220px";
+
+        previewStartBtn.disabled = false;
+        previewStopBtn.disabled = true;
+        rotateInput.disabled = true;
+        rotateInput.value = 0;
+        updateRotation(0);
+        quickDegBtns.forEach((b) => (b.disabled = true));
+      }
+
+      previewStopBtn.addEventListener("click", stopPreviewStream);
+
+      // Recorder Section Logic
+      document.getElementById("start").addEventListener("click", async () => {
+        try {
+          const fps = parseInt(document.getElementById("fps").value, 10);
+          outputType = document.getElementById("output-type").value;
+
+          recordStream = await navigator.mediaDevices.getDisplayMedia({
+            video: { frameRate: { ideal: fps, max: fps } },
+            audio: true,
+          });
+
+          switch (outputType) {
+            case "gif":
+              const videoTrack = recordStream.getVideoTracks()[0];
+              const { width, height } = videoTrack.getSettings();
+              const fixedWidth = 300;
+              const newHeight = height * (fixedWidth / width);
+
+              recorder = new RecordRTC(recordStream, {
+                type: "gif",
+                frameRate: fps,
+                canvas: {
+                  width: fixedWidth,
+                  height: newHeight,
+                },
+              });
+              break;
+            case "webm":
+              recorder = new RecordRTC(recordStream, {
+                type: "video",
+                mimeType: "video/webm",
+                frameRate: fps,
+              });
+              break;
+            case "mp4":
+              recorder = new RecordRTC(recordStream, {
+                type: "video",
+                mimeType: "video/mp4",
+                frameRate: fps,
+              });
+              break;
+          }
+
+          recorder.startRecording();
+          document.getElementById("start").disabled = true;
+          document.getElementById("stop").disabled = false;
+          document.getElementById("status-dot").classList.add("recording");
+          document.getElementById("status-text").textContent = "Recording…";
+          document.getElementById("download").style.display = "none";
+
+          recordStream.getVideoTracks()[0].onended = () => {
+            if (recorder && recorder.getState() === "recording") {
+              document.getElementById("stop").click();
+            }
+          };
+        } catch (err) {
+          console.warn("Perekaman dibatalkan:", err);
+        }
       });
 
       document.getElementById("stop").addEventListener("click", () => {
         recorder.stopRecording(() => {
           const blob = recorder.getBlob();
           const url = URL.createObjectURL(blob);
-
-          // Generate timestamp in unix timestamp format
-          const timestamp = parseInt(Math.floor(new Date().getTime()) / 1000);
+          const timestamp = Math.floor(Date.now() / 1000);
 
           const downloadLink = document.getElementById("download");
           downloadLink.href = url;
@@ -386,8 +639,9 @@
           downloadLink.style.display = "flex";
           downloadLink.lastChild.textContent = ` Download ${outputType.toUpperCase()}`;
 
-          // Stop all tracks to remove the screen share indicator
-          stream.getTracks().forEach((track) => track.stop());
+          if (recordStream) {
+            recordStream.getTracks().forEach((track) => track.stop());
+          }
           document.getElementById("status-text").textContent =
             "Ready to record";
         });
